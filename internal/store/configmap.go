@@ -125,6 +125,28 @@ func configMapMetricFamilies(allowAnnotationsList, allowLabelsList []string) []g
 				}
 			}),
 		),
+		*generator.NewFamilyGeneratorWithStability(
+			"kube_configmap_size_bytes",
+			"Size of a configmap, in bytes.",
+			metric.Gauge,
+			basemetrics.ALPHA,
+			"",
+			wrapConfigMapFunc(func(c *v1.ConfigMap) *metric.Family {
+				metrics := []*metric.Metric{}
+				marshaledBytes, err := c.Marshal()
+				if err == nil {
+					metrics = append(metrics, &metric.Metric{
+						LabelKeys:   []string{},
+						LabelValues: []string{},
+						Value:       float64(len(marshaledBytes)),
+					})
+				}
+
+				return &metric.Family{
+					Metrics: metrics,
+				}
+			}),
+		),
 	}
 }
 
